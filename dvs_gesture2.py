@@ -272,6 +272,7 @@ def arrange_aedat_events(events,labels):
 				since the start and stop times of events are clear, only the event labels 
 				present. 
 
+	NOTE : The interval is [startTime_usec, endTime_usec)
 	'''
 	labels = labels[1:]
 	events = np.column_stack(events).T
