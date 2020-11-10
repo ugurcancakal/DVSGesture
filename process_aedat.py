@@ -1,5 +1,17 @@
+'''
+Utility functions to process and extract events from aedat 3.1 files
+The functions other than aedat_to_np, serves for aedat_to_np
+
+All functions have been tested(only proof of concept not an extensive test)
+and the test file is stored in the test folder.
+
+The datasheet of the AEDAT file format is in 
+https://inivation.github.io/inivation-docs/Software%20user%20guides/AEDAT_file_formats.html
+
+author: @ugurc
+201020
+'''
 import numpy as np
-import progressbar
 import time
 import os
 import struct
@@ -29,7 +41,7 @@ def get_filelist(root_dir, file_dir):
 
       for name in filenames:
         if '.aedat' in name:
-          file_list.append(root_dir+'/'+name.replace('\n',''))
+          file_list.append(os.path.join(root_dir, name.replace('\n','')))
 
   except:
     print("Unable to open the file {}".format(file_dir))
@@ -286,44 +298,3 @@ def arrange_aedat_events(events,labels):
 	  _events.append(np.array(event,dtype=np.uint32))
 
 	return np.array(_events), labels[:,0].astype(np.uint8)
-
-# def extract_events(filenames):
-# 	'''
-# 	TO BE COMMENTED AND TESTED
-# 	'''
-#   tic = time.perf_counter()
-#   _events = []
-#   _labels = []
-
-#   widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()]
-#   bar = progressbar.ProgressBar(maxval=len(filenames), widgets = widgets).start()
-
-#   for i,name in enumerate(filenames):
-#     events, labels = aedat_to_events(name)
-#     for label in labels:
-#       i_start = np.searchsorted(events[:,0], label[1], side='left')
-#       i_end = np.searchsorted(events[:,0], label[2], side='left')
-#       event = events[i_start:i_end]
-#       _events.append(np.array(event,dtype=np.uint32))
-#       _labels.append(label[0])
-#     bar.update(i+1)
-
-#   bar.finish()
-#   toc = time.perf_counter()
-#   print(f"\n{len(_labels)} Event sequence&label pairs have been extracted succesfully in {toc-tic:0.4f} seconds!")
-
-#   return np.array(_events), np.array(_labels,dtype=np.uint8)
-
-if __name__ == '__main__':
-	test_file = '/home/ugurc/drive/data/DvsGesture/user01_fluorescent.aedat'
-	
-	# events, labels = aedat_to_np(test_file)
-	# print(type(events))
-	# print(type(labels))
-	# print(events.shape)
-	# print(events[0].shape)
-
-	# print(events)
-	# print(labels)
-
-	# print(np.vstack(events))
