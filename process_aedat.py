@@ -28,7 +28,9 @@ def get_filelist(root_dir, file_dir):
     file_list(string): list of global paths to .aedat files 
   '''
 
-  if not os.path.exists(root_dir+file_dir):
+  path_of_interest = os.path.join(root_dir,file_dir)
+
+  if not os.path.exists(path_of_interest):
 	  print(f'{file_dir} does not exist')
 	  return
 
@@ -36,7 +38,7 @@ def get_filelist(root_dir, file_dir):
   file_list = []
 
   try:
-    with open(root_dir+file_dir, 'r') as f:
+    with open(path_of_interest, 'r') as f:
       filenames = f.readlines()
 
       for name in filenames:
@@ -48,7 +50,7 @@ def get_filelist(root_dir, file_dir):
 
   else:
     toc = time.perf_counter()
-    print(f'\n"{root_dir+file_dir}" has been processed in {toc-tic:0.4f} seconds!')
+    print(f'\n"{path_of_interest}" has been processed in {toc-tic:0.4f} seconds!')
 
   return file_list
 
@@ -292,9 +294,9 @@ def arrange_aedat_events(events,labels):
 	_events = []
 
 	for l in labels:
-	  i_start = np.searchsorted(events[:,0], l[1], side='left')
-	  i_end = np.searchsorted(events[:,0], l[2], side='left')
-	  event = events[i_start:i_end]
-	  _events.append(np.array(event,dtype=np.uint32))
+		i_start = np.searchsorted(events[:,0], l[1], side='left')
+		i_end = np.searchsorted(events[:,0], l[2], side='left')
+		event = np.asarray([]) if i_start == i_end else events[i_start:i_end]	
+		_events.append(np.asarray(event,dtype=np.uint32))	
 
-	return np.array(_events), labels[:,0].astype(np.uint8)
+	return np.asarray(_events), labels[:,0].astype(np.uint8)
