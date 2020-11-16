@@ -7,8 +7,8 @@ import progressbar
 
 def create_dbs(root_dir, 
 							 hdf5_dir='/dvs_gestures.hdf5',
-							 trials_to_train='/trials_to_train.txt', 
-							 trials_to_test='/trials_to_test.txt'):
+							 trials_to_train='trials_to_train.txt', 
+							 trials_to_test='trials_to_test.txt'):
 
 	print(f'{hdf_dir} database is begin created...')
 	tic = time.perf_counter()
@@ -52,10 +52,22 @@ def set_group(hdf, setname, filelist, keystart=0):
 	toc = time.perf_counter()
 	print(f"\n{len(labels)} Event sequences have been extracted succesfully in {toc-tic:0.4f} seconds!")
 
-
 def extract_events(filenames):
 	'''
-	TO BE COMMENTED AND TESTED
+	Extracts event and label pairs in the form of numpy arrays
+	from the given list of filenames. To create filename list,
+	process_aedat.get_filelist() function is recommended
+	
+		Arguments:
+			filenames(list of string):
+				list of global paths to .aedat files of interest
+
+		Returns:
+			events, labels tuple:
+				events: 1D array of 2D variable size arrays consisting of 
+					event sequences [[[t,x,y,p],[t,x,y,p]...],[[t,x,y,p],[t,x,y,p]...]...]
+				labels: 1D array of event labels for the ones in events array.
+
 	'''
 	tic = time.perf_counter()
 	_events = np.empty(0)
@@ -75,66 +87,3 @@ def extract_events(filenames):
 	print(f"\n{len(_labels)} Event sequence&label pairs have been extracted succesfully in {toc-tic:0.4f} seconds!")
 
 	return _events, _labels
-
-if __name__ == '__main__':
-	test_file = '/home/ugurc/drive/data/DvsGesture/user01_fluorescent.aedat'
-	test_file2 = '/home/ugurc/drive/data/DvsGesture/user02_fluorescent.aedat'
-	# _events = np.empty(0)
-	# _labels = np.empty(0, dtype=np.uint8)
-
-	# print(type(_events))
-	# print(type(_labels))
-	# print(_events.shape)
-	# print(_events[0].shape)
-
-	# print(_events)
-	# print(_labels)
-
-	# events, labels = aedat_to_np(test_file)
-	# _events = np.concatenate((_events, events))
-	# _labels = np.concatenate((_labels, labels))
-
-	# print(type(_events))
-	# print(type(_labels))
-	# print(_events.shape)
-	# print(_events[0].shape)
-
-	# print(_events)
-	# print(_labels)
-
-	# events2, labels2 = aedat_to_np(test_file2)
-	# print(type(events2))
-	# print(type(labels2))
-	# print(events2.shape)
-	# print(events2[0].shape)
-
-	# print(events2)
-	# print(labels2)
-
-	# events = np.concatenate((events, events2))
-	# labels = np.concatenate((labels, labels2))
-	# print(type(events))
-	# print(type(labels))
-	# print(events.shape)
-	# print(events[0].shape)
-
-	# print(events)
-	# print(labels)
-
-	root_dir = '/home/ugurc/drive/data/DvsGesture'
-	trials_to_train = '/trials_to_train.txt'
-	trials_to_test = '/trials_to_test.txt'
-
-	test_filelist = pa.get_filelist(root_dir,trials_to_test)
-	events, labels = extract_events(test_filelist)
-
-	print(type(events))
-	print(type(labels))
-	print(events.shape)
-	print(events[0].shape)
-
-	print(events)
-	print(labels)
-
-
-	# print(np.vstack(events))
