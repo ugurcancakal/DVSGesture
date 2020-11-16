@@ -27,7 +27,7 @@ class AedatFile():
 	One can save the aedat file in the AEDAT 3.1 format. In that case, 
 	proper processing of the compressed form is required. 
 	'''
-	def __init__(self, event_head, event_seq, event_labels, seq_clipped, filepath, start_time=None, dump=False):
+	def __init__(self, event_head, event_seq, event_labels, seq_clipped, filepath, start_time=None):
 		'''
 		Aedat File object designed to replicate an original aedat record.
 			Arguments:
@@ -60,10 +60,6 @@ class AedatFile():
 
 				start_time(datetime object):
 					datatime object to be used as start time
-
-				dump(bool):
-					the boolean flag indicating whether the object is to be pickled or not
-
 		'''
 		self._version = b'#!AER-DAT3.1\r\n'
 		self._format = b'#Format: RAW\r\n'
@@ -85,9 +81,6 @@ class AedatFile():
 		self.seq_clipped = seq_clipped
 		self.event_labels = event_labels
 		self.filepath = filepath 
-
-		if dump:
-			self.pickle_aedat()
 
 	def set_start_time(self, start_time):
 		'''
@@ -114,26 +107,33 @@ class AedatFile():
 		_start_time += b'\r\n'
 		return _start_time
 
-	def pickle_aedat(self):
-		'''
-		Utility funciton to dump the object in the form of a pickle.
-		In that case one can easily load and use the data inside the 
-		object created. It won't create the .pickle file if it already 
-		exists.
-		'''
-		pickle_path = os.path.join(os.getcwd(),self.filepath+'.pickle')
-		if os.path.exists(pickle_path):
-			print(f'{pickle_path} already exist!')
-			return
-		try:
-			with open(pickle_path,'wb') as f:
-				pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
-		except:
-			print(f'AedatFile object could not be stored in {pickle_path}')
-		else:
-			print(f'AedatFile object has been succesfully pickled in {pickle_path}\n')
+def pickle_aedat(aedat_file, filepath=None):
+	'''
+	Utility funciton to dump the object in the form of a pickle.
+	In that case one can easily load and use the data inside the 
+	object created. It won't create the .pickle file if it already 
+	exists.
 
-def save_aedat_file(aedat_file):
+	Arguments:
+		aedat_file(AedatFile object):
+			aedat file to be saved in AEDAT 3.1 format
+	'''
+	if not filepath:
+		pickle_path = os.path.join(os.getcwd(),aedat_file.filepath+'.pickle')
+	else:
+		pickle_path = os.path.join(filepath,aedat_file.filepath+'.pickle')
+	if os.path.exists(pickle_path):
+		print(f'{pickle_path} already exist!')
+		return
+	try:
+		with open(pickle_path,'wb') as f:
+			pickle.dump(aedat_file, f, pickle.HIGHEST_PROTOCOL)
+	except:
+		print(f'AedatFile object could not be stored in {pickle_path}')
+	else:
+		print(f'AedatFile object has been succesfully pickled in {pickle_path}\n')
+
+def save_aedat_file(aedat_file, filepath=None):
 	'''
 	Creates an aedat file and it's labels to test the functions 
 	defined to read a real one. The function won't create files 
@@ -143,9 +143,13 @@ def save_aedat_file(aedat_file):
 		aedat_file(AedatFile object):
 			aedat file to be saved in AEDAT 3.1 format
 	'''
+	if not filepath:
+		aedat_path = os.path.join(os.getcwd(),aedat_file.filepath+'.aedat')
+		label_path = os.path.join(os.getcwd(),aedat_file.filepath+'_labels.csv')
 
-	aedat_path = os.path.join(os.getcwd(),aedat_file.filepath+'.aedat')
-	label_path = os.path.join(os.getcwd(),aedat_file.filepath+'_labels.csv')
+	else:
+		aedat_path = os.path.join(filepath,aedat_file.filepath+'.aedat')
+		label_path = os.path.join(filepath,aedat_file.filepath+'_labels.csv')
 
 	# EVENTS
 	if os.path.exists(aedat_path):
@@ -155,7 +159,7 @@ def save_aedat_file(aedat_file):
 		if (len(aedat_file.event_head) != len(aedat_file.event_seq)):
 			print(f'length of event header ({len(aedat_file.event_head)}) is \
 							different from length of event sequence{len(aedat_file.event_seq)}')
-			printf("Failure!")
+			print("Failure!")
 			return
 		event_it = zip(aedat_file.event_head,aedat_file.event_seq)
 		try:
