@@ -15,11 +15,13 @@ import aedat_file as af
 from aedat_file import AedatFile
 import test_env as env
 import numpy as np
+import os
 
 data_dir = '/home/ugurc/drive/data/DvsGesture'
-trials_to_train = '/trials_to_train.txt'
-trials_to_test = '/trials_to_test.txt'
-test_file = 'test_files/aedat1_for_testing.pickle'
+trials_to_train = 'trials_to_train.txt'
+trials_to_test = 'trials_to_test.txt'
+test_folder = 'test_files'
+test_file = 'aedat1_for_testing.pickle'
 
 train_aedat = ['user01_fluorescent.aedat',
                    'user01_fluorescent_led.aedat',
@@ -154,7 +156,7 @@ class TestProcessAedat(unittest.TestCase):
     are hardcoded in a list. Test function checks if hardcoded
     lists and the lists read from the .txt files are exactly the same.
     '''
-    _train_list = [data_dir+'/'+_filename for _filename in train_aedat]
+    _train_list = [os.path.join(data_dir,_filename) for _filename in train_aedat]
     train_list = pa.get_filelist(data_dir,trials_to_train)
     self.assertEqual(train_list,_train_list)
     print("Train Filelist Test has been passed!\n")
@@ -167,7 +169,7 @@ class TestProcessAedat(unittest.TestCase):
     lists and the lists read from the .txt files are exactly the same.
     '''
 
-    _test_list = [data_dir+'/'+_filename for _filename in test_aedat]
+    _test_list = [os.path.join(data_dir,_filename)for _filename in test_aedat]
     test_list = pa.get_filelist(data_dir,trials_to_test)
     self.assertEqual(test_list,_test_list)
     print("Test Filelist Test has been passed!\n")
@@ -180,12 +182,13 @@ class TestProcessAedat(unittest.TestCase):
     if header_list and the header get by reading the file
     are exactly the same.
     '''
-    test = af.load_aedat_pickle(test_file)
+    test_path = os.path.join(test_folder,test_file)
+    test = af.load_aedat_pickle(test_path)
     header_list = [test._version, test._format, test._source, 
                    test._start_time, test._end_line]
 
-    aedat_file = test.filepath + '.aedat'    
-    print(aedat_file)            
+    aedat_file = os.path.join(test_folder,test.filepath) + '.aedat'   
+
     try:
       with open(aedat_file, 'rb') as f:
         header_line = pa.get_header_line_aedat(f)
@@ -203,8 +206,10 @@ class TestProcessAedat(unittest.TestCase):
     if header_list of dictionaries and the header get by reading the file
     are exactly the same.
     '''
-    test = af.load_aedat_pickle(test_file)
-    aedat_file = test.filepath + '.aedat'
+    test_path = os.path.join(test_folder,test_file)
+    test = af.load_aedat_pickle(test_path)
+    aedat_file = os.path.join(test_folder,test.filepath) + '.aedat'
+
     _headers = [dict(zip(test.event_head_keys,head)) for head in test.event_head]
     headers = []
     try:
@@ -234,8 +239,10 @@ class TestProcessAedat(unittest.TestCase):
     The test checks if the hardcoded polarity events are the same as 
     the extracted ones. This shows us that function works as expected.
     '''
-    test = af.load_aedat_pickle(test_file)
-    aedat_file = test.filepath + '.aedat'
+    test_path = os.path.join(test_folder,test_file)
+    test = af.load_aedat_pickle(test_path)
+    aedat_file = os.path.join(test_folder,test.filepath) + '.aedat'
+
     seqs = [np.column_stack(seq).astype(np.uint32) for seq in test.event_seq]
     event_list = [[event for event in seq] for seq in seqs]
 
@@ -270,9 +277,10 @@ class TestProcessAedat(unittest.TestCase):
     2D numpy arrays.
     Also the event labels should be stored in a 1D numpy array 
     '''
-    test = af.load_aedat_pickle(test_file)
-    aedat_file = test.filepath + '.aedat'
-    labels_file = test.filepath + '_labels.csv'
+    test_path = os.path.join(test_folder,test_file)
+    test = af.load_aedat_pickle(test_path)
+    aedat_file = os.path.join(test_folder,test.filepath) + '.aedat'
+    labels_file = os.path.join(test_folder,test.filepath) + '_labels.csv'
 
     _labels = np.asarray([lab[0] for lab in test.event_labels])
     _events = np.asarray([np.asarray(seq,dtype=np.uint32) for seq in test.seq_clipped])
@@ -313,9 +321,10 @@ class TestProcessAedat(unittest.TestCase):
     process works perfectly on the test file. 
     '''
 
-    test = af.load_aedat_pickle(test_file)
-    aedat_file = test.filepath + '.aedat'
-    labels_file = test.filepath + '_labels.csv'
+    test_path = os.path.join(test_folder,test_file)
+    test = af.load_aedat_pickle(test_path)
+    aedat_file = os.path.join(test_folder,test.filepath) + '.aedat'
+    labels_file = os.path.join(test_folder,test.filepath) + '_labels.csv'
 
     _labels = np.asarray([lab[0] for lab in test.event_labels])
     _events = np.asarray([np.asarray(seq,dtype=np.uint32) for seq in test.seq_clipped])
@@ -327,7 +336,6 @@ class TestProcessAedat(unittest.TestCase):
     for events1, events2 in zip(events,_events):
       for event1, event2 in zip(events1, events2):
         self.assertTrue((event1 == event2).all())
-
     print('Aedat to numpy array test has been passed!\n')
 
 if __name__=='__main__':
