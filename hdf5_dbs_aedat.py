@@ -4,6 +4,7 @@ import process_aedat as pa
 import time 
 import numpy as np
 import progressbar
+import h5py
 
 def create_dbs(root_dir, 
 							 hdf5_dir='/dvs_gestures.hdf5',
@@ -30,7 +31,11 @@ def create_dbs(root_dir,
 	    "{hdf5_dir}" in {toc-tic:0.4f} seconds!')
 
 def set_group(hdf, setname, filelist, keystart=0):
-
+	'''
+	If inserted is different than the extracted, that's beceuse 
+	there are empty event sequences
+	'''
+	count = 0;
 	print("\n{} in the database is being created...".format(setname))
 	tic = time.perf_counter()
 	trainset = hdf.create_group(setname)
@@ -41,16 +46,18 @@ def set_group(hdf, setname, filelist, keystart=0):
 	bar = progressbar.ProgressBar(maxval=len(labels), widgets = widgets).start()
 
 	for i,event in enumerate(events, start=keystart):
+		if (not event.size == 0):
+			event_seq = hdf.create_group('{}/{}'.format(setname,i))
+			event_seq.create_dataset('time', data=event[:,0])
+			event_seq.create_dataset('pos', data=event[:,1:])
+			event_seq.create_dataset('label', data=labels[i])
+			count+=1;
 
-		event_seq = hdf.create_group('{}/{}'.format(setname,i))
-		event_seq.create_dataset('time', data=event[:,0])
-		event_seq.create_dataset('pos', data=event[:,1:])
-		event_seq.create_dataset('label', data=labels[i])
 		bar.update(i+1)
 
 	bar.finish()
 	toc = time.perf_counter()
-	print(f"\n{len(labels)} Event sequences have been extracted succesfully in {toc-tic:0.4f} seconds!")
+	print(f"\n{count} Event sequences have been inserted succesfully in {toc-tic:0.4f} seconds!")
 
 def extract_events(filenames):
 	'''
