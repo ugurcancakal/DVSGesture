@@ -151,10 +151,10 @@ def aedat3():
 	seq = [[[15,127,126,1],[88,18,98,1]],
 				 [[1254,15,19,0],[1265,28,19,1],[1288,17,17,1]]]
 
-	labels = [[4,15,90],
+	labels = [[4,89,90],
 	          [6,1254,1300]]
 
-	seq_clipped = [[[15,127,126,1],[88,18,98,1]],
+	seq_clipped = [[],
 			 					 [[1254,15,19,0],[1265,28,19,1],[1288,17,17,1]]]
 
 	file = af.AedatFile(heads,seq,labels,seq_clipped,filename)
@@ -169,6 +169,7 @@ def clear_env():
 	cleared += glob.glob('*_labels.csv')
 	cleared += glob.glob('*.pickle')
 	cleared += glob.glob('*.txt')
+	cleared += glob.glob('*.hdf5')
 
 	for file in cleared:
 		try:
