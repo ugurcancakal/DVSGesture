@@ -52,9 +52,23 @@ def hdf5_dbs_aedat_env():
 
 	test_path = 'test_files'
 	config_path = 'extract_event_test.txt'
+
+	config_path_train = 'train_events_test.txt'
+	config_path_test = 'test_events_test.txt'
+
 	with open(os.path.join(test_path, config_path),'w') as f:
 		for file in filelist:
 			f.write(file.filepath+'.aedat'+'\n')
+
+	with open(os.path.join(test_path, config_path_train),'w') as f:
+		for file in filelist[0:2]:
+			f.write(file.filepath+'.aedat'+'\n')
+
+	with open(os.path.join(test_path, config_path_test),'w') as f:
+		for file in filelist[2:]:
+			f.write(file.filepath+'.aedat'+'\n')
+
+	print('\n\n\n\n\n\n')
 
 def aedat1():
 	'''
@@ -106,7 +120,7 @@ def aedat2():
 
 	Event headers are filled to represent sequences carefully.
 	'''
-	filename = 'aedat2_for_testing'
+	filename = 'aedat2_led'
 	heads = [[1, 1, 8, 4, 0, 6, 6, 6],
 					 [1, 1, 8, 4, 0, 4, 4, 4],
 					 [1, 1, 8, 4, 0, 5, 5, 5],
@@ -144,7 +158,7 @@ def aedat3():
 
 	Event headers are filled to represent sequences carefully.
 	'''
-	filename = 'aedat3_for_testing'
+	filename = 'aedat3_fluorescent'
 	heads = [[1, 1, 8, 4, 0, 2, 2, 2],
 					 [1, 1, 8, 4, 0, 3, 3, 3],]
 
