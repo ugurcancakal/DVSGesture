@@ -1,3 +1,0 @@
-aedat1_for_testing.aedat
-aedat2_led.aedat
-aedat3_fluorescent.aedat
