@@ -22,10 +22,11 @@ def get_filelist(root_dir, file_dir):
   Also reports the time passed between start and the end
 
   Arguments:
+  	root_dir(string): parent directory path to the file
     file_dir(string): text file of interest
 
   Return:
-    file_list(string): list of global paths to .aedat files 
+    file_list(string list): list of global paths to .aedat files 
   '''
 
   path_of_interest = os.path.join(root_dir,file_dir)
