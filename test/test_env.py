@@ -13,6 +13,8 @@ import numpy as np
 
 def process_aedat_env():
 	'''
+	Creates an aedat file for testing the process_aedat file. 
+	It generates one aedat file, it's labels, and it's pickle.
 	'''
 	test_path = os.path.join(os.getcwd(), 'test_files')
 	print(test_path)
@@ -23,18 +25,30 @@ def process_aedat_env():
 	af.pickle_aedat(file1,test_path)
 	af.save_aedat_file(file1,test_path)
 
+	print('TEST ENVIRONMENT HAS BEEN SET!!!\n\n\n')
+
 def aedat_file_env():
 	'''
 	'''
 
 def hdf5_dbs_aedat_env():
 	'''
+	Creates the necessary files for testing the hdf5_dbs_aedat.py file
+	It generates 3 aedat files, their labels, their pickles, and
+	3 text files for configuration: one for listing all the filenames of the 
+	artificially created aedat files, one for listing the ones to be used as 
+	training set data, one for listing the ones to be used as test set data.
+	It also copies gesture_mapping.csv from the original dataset folder. 
 	'''
-
+	root_dir = '/home/ugurc/drive/data/DvsGesture'
+	gesture_mapping='gesture_mapping.csv'
+	
 	test_path = os.path.join(os.getcwd(), 'test_files')
 
 	if not os.path.exists(test_path):
 		os.makedirs(test_path)
+
+	shutil.copy(os.path.join(root_dir,gesture_mapping),test_path)
 
 	file1 = aedat1()
 	af.pickle_aedat(file1,test_path)
@@ -68,7 +82,7 @@ def hdf5_dbs_aedat_env():
 		for file in filelist[2:]:
 			f.write(file.filepath+'.aedat'+'\n')
 
-	print('\n\n\n\n\n\n')
+	print('TEST ENVIRONMENT HAS BEEN SET!!!\n\n\n')
 
 def aedat1():
 	'''
