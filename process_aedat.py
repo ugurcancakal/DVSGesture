@@ -73,7 +73,6 @@ def aedat_to_np(filepath):
 		NOTE: the .csv file which is reserved for labels of the .aedat 
 		has to be in the same root directory.
 	'''
-
 	# Initial requirement satisfaction
 	if not os.path.exists(filepath):
 		print(f'{filepath} does not exist')
