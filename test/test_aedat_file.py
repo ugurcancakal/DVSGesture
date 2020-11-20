@@ -48,7 +48,9 @@ class TestAedatFile(unittest.TestCase):
 		if not os.path.exists('test_files'):
 			os.makedirs('test_files')
 
-		filename = os.path.join('test_files','aedat_for_testing')
+		filename = 'aedat_for_testing'
+		dir_path = os.path.join(os.getcwd(), 'test_files')
+
 		heads = [[1, 1, 8, 4, 0, 5, 5, 5],
 						 [1, 1, 8, 4, 0, 4, 4, 4],
 						 [1, 1, 8, 4, 0, 3, 3, 3]]
@@ -66,9 +68,11 @@ class TestAedatFile(unittest.TestCase):
 									 [[102865,15,19,1],[102898,28,36,0],[119579,32,44,1]],
 									 []]
 
-		file = AedatFile(heads,seq,labels,seq_clipped,filename,dump=True)
-		af.save_aedat_file(file)
-		file_check = af.load_aedat_pickle(filename+'.pickle')
+		file = AedatFile(heads,seq,labels,seq_clipped,filename)
+		af.pickle_aedat(file,dir_path)
+		af.save_aedat_file(file,dir_path)
+
+		file_check = af.load_aedat_pickle(os.path.join(dir_path,filename)+'.pickle')
 
 		print('\n')
 		self.assertEqual(heads, file_check.event_head)
