@@ -4,6 +4,9 @@ training and test on the DVS128 Gesture dataset
 
 All functions have been tested(only proof of concept not an extensive test)
 and the test file is stored in the test folder.
+
+author: @ugurc
+201110
 '''
 import process_aedat as pa
 import time 
