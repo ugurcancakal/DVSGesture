@@ -75,7 +75,8 @@ def create_dbs(root_dir,
 
 	try:
 		with h5py.File(hdf5_dir, 'w') as hdf:
-			hdf.attrs.update(gesture_map)
+			hdf.attrs['label_idx']=list(gesture_map.keys())
+			hdf.attrs['label_name']=list(gesture_map.values())
 			hdf.attrs['time'] = 'us'
 			hdf.attrs['link'] = 'https://www.research.ibm.com/dvsgesture/'
 			hdf.attrs['root_dir'] = root_dir
@@ -255,7 +256,7 @@ def reduce_filename(filepath):
 	filename=reverse_path[i-1::-1]
 	return filename
 
-def get_gesture_mapping(root_dir, file_dir):
+def get_gesture_mapping(root_dir, file_dir, log=False):
 	''' 
 	Creates a dictionary of gesture mapping of dataset out of .csv file
 
@@ -287,7 +288,8 @@ def get_gesture_mapping(root_dir, file_dir):
 		print("Unable to process the file {}".format(file_dir))
 
 	else:
-		toc = time.perf_counter()
-		print(f'\n"{path_of_interest}" has been processed in {toc-tic:0.4f} seconds!')
+		if log:
+			toc = time.perf_counter()
+			print(f'\n"{path_of_interest}" has been processed in {toc-tic:0.4f} seconds!')
 
 	return mapping
