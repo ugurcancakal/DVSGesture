@@ -6,6 +6,7 @@ author: @ugurc
 '''
 from aedat_file import AedatFile
 import aedat_file as af
+import process_aedat as pa
 import glob
 import os 
 import shutil
@@ -84,6 +85,57 @@ def hdf5_dbs_aedat_env():
 
 	print('TEST ENVIRONMENT HAS BEEN SET!!!\n\n\n')
 
+def dvs_dataloader_env():
+	'''
+	'''
+	root_dir = '/home/ugurc/drive/data/DvsGesture'
+	trials_to_train = 'trials_to_train.txt'
+	trials_to_test = 'trials_to_test.txt'
+	gesture_path = 'gesture_mapping.csv'
+
+	test_path = os.path.join(os.getcwd(), 'test_files')
+
+	if not os.path.exists(test_path):
+		os.makedirs(test_path)
+
+	trainMissing = os.path.join(test_path, 'trainMissing')
+	testMissing = os.path.join(test_path, 'testMissing')
+	gestureMissing = os.path.join(test_path, 'gestureMissing')
+	randomMissing = os.path.join(test_path, 'randomMissing')
+
+	missingList = [trainMissing,testMissing,gestureMissing,randomMissing]
+
+	for _dir in missingList:
+		if not os.path.exists(_dir):
+			os.makedirs(_dir)
+
+	path_list = pa.get_filelist(root_dir,trials_to_train) + pa.get_filelist(root_dir,trials_to_test)
+	csv_list = [path.replace('.aedat', '_labels.csv') for path in path_list]
+	path_list = path_list+csv_list
+	path_list.append(os.path.join(root_dir,gesture_path))
+	path_list.append(os.path.join(root_dir,trials_to_train))
+	path_list.append(os.path.join(root_dir,trials_to_test))
+
+	trainMissing_paths = [path.replace(root_dir, trainMissing) for path in path_list]
+	testMissing_paths = [path.replace(root_dir, testMissing) for path in path_list]
+	gestureMissing_paths = [path.replace(root_dir, gestureMissing) for path in path_list]
+	randomMissing_paths = [path.replace(root_dir, randomMissing) for path in path_list]
+
+	testMissing_paths.pop(-1)
+	trainMissing_paths.pop(-2)
+	gestureMissing_paths.pop(-3)
+	randomMissing_paths.pop(np.random.randint(0,len(randomMissing_paths)-3))
+
+	missing_paths = [trainMissing_paths,testMissing_paths,gestureMissing_paths,randomMissing_paths]
+
+	for _dir in missing_paths:
+		for path in _dir:
+			with open(path, 'wb') as fp: 
+				pass
+
+	shutil.copy(os.path.join(root_dir,trials_to_train),randomMissing)
+	shutil.copy(os.path.join(root_dir,trials_to_test),randomMissing)
+
 def aedat1():
 	'''
 	In the mock file there are 3 event records.
@@ -110,8 +162,8 @@ def aedat1():
 
 
 	labels = [[1,24,50],
-	          [5,102865,126562],
-	          [11,2157620,2178812]]
+						[5,102865,126562],
+						[11,2157620,2178812]]
 
 	seq_clipped = [[[25,10,20,0],[38,120,59,1],[48,5,9,0]],
 								 [[102865,15,19,1],[102898,28,36,0],[119579,32,44,1]],
@@ -146,9 +198,9 @@ def aedat2():
 				 [[2068981,127,127,0],[2157619,0,15,1],[2178812,1,1,1]]]
 
 	labels = [[2,40,59],
-	          [3,119579,119580],
-	          [8,126918,127220],
-	          [7,2068981,2178818]]
+						[3,119579,119580],
+						[8,126918,127220],
+						[7,2068981,2178818]]
 
 	seq_clipped = [[[48,5,9,0]],
 								 [[119579,32,44,1]],
@@ -180,32 +232,24 @@ def aedat3():
 				 [[1254,15,19,0],[1265,28,19,1],[1288,17,17,1]]]
 
 	labels = [[4,89,90],
-	          [6,1254,1300]]
+						[6,1254,1300]]
 
 	seq_clipped = [[],
-			 					 [[1254,15,19,0],[1265,28,19,1],[1288,17,17,1]]]
+								 [[1254,15,19,0],[1265,28,19,1],[1288,17,17,1]]]
 
 	file = af.AedatFile(heads,seq,labels,seq_clipped,filename)
 	return file;
 
-def clear_env():
+def clear_env(keepHDF5=False):
 	'''
 	Clear all aedat, csv and pickle files and test_files folder
+		Arguments:
+			keepHDF5: 
+				real hdf5 dbs requires takes at least 2 minutes to create.
+				So make it true to keep a real hdf5 dbs
+
 	'''
 	dir_path = 'test_files'
-	cleared = glob.glob('*.aedat')
-	cleared += glob.glob('*_labels.csv')
-	cleared += glob.glob('*.pickle')
-	cleared += glob.glob('*.txt')
-	cleared += glob.glob('*.hdf5')
-
-	for file in cleared:
-		try:
-			os.remove(file)
-		except:
-			print(file, ' removal is unsuccesful')
-		else:
-			print(file, ' has cleared!')
 
 	try:
 		shutil.rmtree(dir_path)
