@@ -16,7 +16,7 @@ import time
 import os
 import struct
 
-def get_filelist(root_dir, file_dir):
+def get_filelist(root_dir, file_dir, log=False):
   ''' 
   Creates a list of filenames of .aedat files which are listed in a .txt file
   Also reports the time passed between start and the end
@@ -49,9 +49,10 @@ def get_filelist(root_dir, file_dir):
   except:
     print("Unable to open the file {}".format(file_dir))
 
-  else:
-    toc = time.perf_counter()
-    print(f'\n"{path_of_interest}" has been processed in {toc-tic:0.4f} seconds!')
+  else: 
+  	if(log):
+	    toc = time.perf_counter()
+	    print(f'\n"{path_of_interest}" has been processed in {toc-tic:0.4f} seconds!')
 
   return file_list
 
