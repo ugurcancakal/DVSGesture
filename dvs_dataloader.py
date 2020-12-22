@@ -10,21 +10,23 @@ author: ugurc
 201201
 '''
 
-import hdf5_dbs_aedat as dbs
-import process_aedat as pa
-
 import os
-import h5py
-import time
-import progressbar
-import math
 import cv2
+import h5py
+import math
+import time
 import torch
+import progressbar
+
+import process_aedat as pa
+import hdf5_dbs_aedat as dbs
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cv2 import VideoWriter, VideoWriter_fourcc
 from torch.utils.data import Dataset
+from cv2 import VideoWriter, VideoWriter_fourcc
+
 
 class DVSGesture(Dataset):
 	'''
