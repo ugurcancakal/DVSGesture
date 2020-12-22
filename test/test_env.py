@@ -31,6 +31,7 @@ def process_aedat_env():
 def aedat_file_env():
 	'''
 	'''
+	None
 
 def hdf5_dbs_aedat_env():
 	'''
@@ -135,6 +136,10 @@ def dvs_dataloader_env():
 
 	shutil.copy(os.path.join(root_dir,trials_to_train),randomMissing)
 	shutil.copy(os.path.join(root_dir,trials_to_test),randomMissing)
+
+
+def gesture_classifiers():
+	None
 
 def aedat1():
 	'''
