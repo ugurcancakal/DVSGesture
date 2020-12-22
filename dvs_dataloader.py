@@ -43,14 +43,16 @@ class DVSGesture(Dataset):
 		In the case root file is missing or malstructured, it reports the situation
 		and prints out a link to download.
 
-		In the case hdf5 has not been created yet, it creates the dbs.
+		In the case hdf5 has not been created yet, it creates the dbs inside the
+		raw data folder.
 
 			Arguments:
 				root_dir(str): 
 					path to the directory of the file to be processed
 				
 				hdf5_path(str):
-					directory to existing hdf5 database. default : 'dvs_gestures.hdf5'
+					directory to existing hdf5 database. default : 'None'
+
 				
 				is_train_set(bool):
 					flag to decide on train or test set. default : False(test)
