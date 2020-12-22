@@ -27,6 +27,7 @@ import numpy as np
 import math
 
 import os
+
 class TestDVSDataloader(unittest.TestCase):
 	def test1_download_check(self):
 		'''
@@ -165,10 +166,11 @@ class TestDVSDataloader(unittest.TestCase):
 		to torch tensors. In this case, it also does zero padding.
 		'''
 		root_dir = '/home/ugurc/drive/data/DvsGesture'
+		batch = 4
 		dataset = load.DVSGesture(root_dir)
 
 		test_loader = DataLoader(dataset=dataset,
-														 batch_size=4,
+														 batch_size=batch,
 														 shuffle=True,
 														 collate_fn=load.collate_fn)
 
