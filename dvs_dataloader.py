@@ -31,7 +31,7 @@ class DVSGesture(Dataset):
 	Custom pytorch dataset definition for DVSGesture128.
 	It can be used to generate a memory efficient dataloader
 	'''
-	def __init__(self, root_dir, hdf5_dir='dvs_gestures.hdf5', is_train_set=False, transform=None):
+	def __init__(self, root_dir, hdf5_path=None, is_train_set=False, transform=None):
 		'''
 		Initializer for the DVSGesture dataset.
 
@@ -49,7 +49,7 @@ class DVSGesture(Dataset):
 				root_dir(str): 
 					path to the directory of the file to be processed
 				
-				hdf5_dir(str):
+				hdf5_path(str):
 					directory to existing hdf5 database. default : 'dvs_gestures.hdf5'
 				
 				is_train_set(bool):
@@ -59,8 +59,9 @@ class DVSGesture(Dataset):
 					a transformation function to operate on the data before getting an item
 					default : None
 		'''
+		hdf5_path = hdf5_path if hdf5_path else os.path.join(root_dir, 'dvs_gestures.hdf5')
 		self.root_dir = root_dir
-		self.hdf5_dir = hdf5_dir
+		self.hdf5_path = hdf5_path
 		self.subset = 'train_set' if is_train_set else 'test_set'
 
 		if not os.path.isdir(root_dir):
@@ -71,12 +72,12 @@ class DVSGesture(Dataset):
 		self.dataset_valid_check(root_dir)
 
 		# Check if hdf created
-		if not os.path.isfile(hdf5_dir):
-			print(f'The hdf5 database in {hdf5_dir} is missing. It will be created just for once.')
-			dbs.create_dbs(root_dir, hdf5_dir)
+		if not os.path.isfile(hdf5_path):
+			print(f'The hdf5 database in {hdf5_path} is missing. It will be created just for once.')
+			dbs.create_dbs(root_dir, hdf5_path)
 
 		try:
-			with h5py.File(self.hdf5_dir,'r') as hdf:
+			with h5py.File(self.hdf5_path,'r') as hdf:
 				self.gesture_mapping = dict(zip(hdf.attrs['label_idx'], hdf.attrs['label_name']))
 		except:
 			print("\nFAIL: Unable to open and retrieve the gesture map from the hdf5 dataset!")
@@ -107,7 +108,7 @@ class DVSGesture(Dataset):
 					Label of the event happened. The same indexing with _time and _pos
 		'''
 
-		with h5py.File(self.hdf5_dir,'r') as hdf:
+		with h5py.File(self.hdf5_path,'r') as hdf:
 			_time = np.array(hdf.get('{}/{}/time'.format(self.subset,idx)),dtype=np.uint32)
 			_pos = np.array(hdf.get('{}/{}/pos'.format(self.subset,idx)),dtype=np.uint8)
 			_label = np.uint8(hdf.get('{}/{}/label'.format(self.subset,idx)))
@@ -123,7 +124,7 @@ class DVSGesture(Dataset):
 			Returns:
 				__len__(int): number of samples in the dataset to be used.
 		'''
-		with h5py.File(self.hdf5_dir,'r') as hdf:
+		with h5py.File(self.hdf5_path,'r') as hdf:
 			res = hdf[self.subset].attrs['instances']
 		return res;
 
