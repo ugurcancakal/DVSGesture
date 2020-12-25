@@ -118,7 +118,7 @@ class DVSGesture(Dataset):
 			_label = np.uint8(hdf.get('{}/{}/label'.format(self.subset,idx)))
 
 		if self.transform:
-			_time, _pos, _label = self.transform(_time, _pos, _label)
+			return self.transform(_time, _pos, _label)
 
 		return _time, _pos, _label
 
@@ -241,7 +241,7 @@ def collate_fn(batch):
 
 	return time_tensor, pos_tensor, label_tensor
 
-def pos_to_frame(pos, scale, label, px_frame_shape=(128,128)):
+def pos_to_frame(pos, scale, label=None, px_frame_shape=(128,128), dim=3, val=255):
 	'''
 	Creates an image out of the input position sequence.
 	Use the positions given to create pixel values.
@@ -274,7 +274,7 @@ def pos_to_frame(pos, scale, label, px_frame_shape=(128,128)):
 		pos = np.asarray(pos,dtype=np.int32)
 	if not isinstance(scale, int):
 		scale = int(scale)
-	if not isinstance(label, str):
+	if label and not isinstance(label, str):
 		label = str(label)
 
 	# Scaling
@@ -284,7 +284,7 @@ def pos_to_frame(pos, scale, label, px_frame_shape=(128,128)):
 	text_y_pos = 10*scale
 
 	# Frame Generation
-	frame=np.zeros((px_frame_width,px_frame_height,3),dtype=np.uint8)
+	frame=np.zeros((px_frame_width,px_frame_height,dim),dtype=np.uint8)
 
 	# Indexes
 	pol_one = pos[np.asarray(pos[:,2],dtype=bool)]*scale # Green
@@ -292,12 +292,13 @@ def pos_to_frame(pos, scale, label, px_frame_shape=(128,128)):
 
 	for i in range(scale):
 		for j in range(scale):
-			frame[pol_one[:,1]+i,pol_one[:,0]+j,1] = 255 # Green
-			frame[pol_zero[:,1]+i,pol_zero[:,0]+j,0] = 255 # Blue
+			frame[pol_one[:,1]+i,pol_one[:,0]+j,1] = val # Green
+			frame[pol_zero[:,1]+i,pol_zero[:,0]+j,0] = val # Blue
 			
 	# Uncomment to create a rectangular black space for background of the text
 	# cv2.rectangle(frame, (0, 0), (px_frame_width*scale, text_y_pos+10), (0,0,0), -1)
-	cv2.putText(frame, label, (text_x_pos,text_y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.28*scale, (0,255,255), 1+(scale//2))
+	if label:
+		cv2.putText(frame, label, (text_x_pos,text_y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.28*scale, (0,255,255), 1+(scale//2))
 	return frame
 
 def get_area_index(i, n_frame_width, scale, px_frame_shape=(128,128), px_margin=10):
@@ -517,3 +518,4 @@ def loader_video(data_loader,filepath,fps=24,scale=2,n_grid_shape=None,px_frame_
 	bar.finish()
 	toc = time.perf_counter()
 	print(f"\n{len(data_loader.dataset)} event records in {len(data_loader)} batches are recorded as video in {toc-tic:0.4f} seconds in {filepath}!")
+
