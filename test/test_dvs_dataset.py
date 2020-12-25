@@ -15,8 +15,11 @@ author: ugurc
 
 import sys
 sys.path.insert(0,'..')
-import dvs_dataloader as load
-import test_env as env
+import utils
+
+import dvs_dataset as dvs
+import transformations as trans
+import environment as env
 
 import torch
 from torch.utils.data import DataLoader
@@ -28,13 +31,13 @@ import math
 
 import os
 
-class TestDVSDataloader(unittest.TestCase):
+class TestDVSDataset(unittest.TestCase):
 	def test1_download_check(self):
 		'''
 		Check if dataset fails in case the root file does not exist
 		'''
 		root_dir = os.path.join(os.getcwd(), 'thisFileDoesNotExists')
-		dataset = load.DVSGesture(root_dir,'thisFileDoesNotExists.hdf5')
+		dataset = dvs.DVSGesture(root_dir,'thisFileDoesNotExists.hdf5')
 		print('!!!!FAKE FAIL: Manual download check test\n')
 
 	def test2_valid_check_trainset(self):
@@ -43,7 +46,7 @@ class TestDVSDataloader(unittest.TestCase):
 		'''
 		root_dir = os.path.join(os.getcwd(), 'test_files', 'trainMissing')
 		try:
-			dataset = load.DVSGesture(root_dir, 'trainMissing.hdf5')
+			dataset = dvs.DVSGesture(root_dir, 'trainMissing.hdf5')
 		except AssertionError as e:
 			print(repr(e))
 			print("!!!!FAKE FAIL: Validity check trainset file missing test passed!\n")
@@ -54,7 +57,7 @@ class TestDVSDataloader(unittest.TestCase):
 		'''
 		root_dir = os.path.join(os.getcwd(), 'test_files', 'testMissing')
 		try:
-			dataset = load.DVSGesture(root_dir, 'testMissing.hdf5')
+			dataset = dvs.DVSGesture(root_dir, 'testMissing.hdf5')
 		except AssertionError as e:
 			print(repr(e))
 			print("!!!!FAKE FAIL: Validity check testset file missing test passed!\n")
@@ -65,7 +68,7 @@ class TestDVSDataloader(unittest.TestCase):
 		'''
 		root_dir = os.path.join(os.getcwd(), 'test_files', 'gestureMissing')
 		try:
-			dataset = load.DVSGesture(root_dir, 'gestureMissing.hdf5')
+			dataset = dvs.DVSGesture(root_dir, 'gestureMissing.hdf5')
 		except AssertionError as e:
 			print(repr(e))
 			print("!!!!FAKE FAIL: Validity check gesture mapping file missing test passed!\n")
@@ -77,7 +80,7 @@ class TestDVSDataloader(unittest.TestCase):
 		'''
 		root_dir = os.path.join(os.getcwd(), 'test_files', 'randomMissing')
 		try:
-			dataset = load.DVSGesture(root_dir, 'randomMissing.hdf5')
+			dataset = dvs.DVSGesture(root_dir, 'randomMissing.hdf5')
 		except AssertionError as e:
 			print(repr(e))
 			print("!!!!FAKE FAIL: Validity check random file missing test passed!\n")
@@ -88,10 +91,10 @@ class TestDVSDataloader(unittest.TestCase):
 		Train set has 1176 instances and the test set has 288 instances
 		'''
 		root_dir = '/home/ugurc/drive/data/DvsGesture'
-		dataset = load.DVSGesture(root_dir,is_train_set=True)
+		dataset = dvs.DVSGesture(root_dir,is_train_set=True)
 		self.assertEqual(dataset.__len__(), 1176)
 
-		dataset = load.DVSGesture(root_dir,is_train_set=False)
+		dataset = dvs.DVSGesture(root_dir,is_train_set=False)
 		self.assertEqual(dataset.__len__(), 288)
 		print('Dataset length test passed(1176/288)!\n')
 
@@ -104,7 +107,7 @@ class TestDVSDataloader(unittest.TestCase):
 			label(np.uint8)
 		'''
 		root_dir = '/home/ugurc/drive/data/DvsGesture'
-		dataset = load.DVSGesture(root_dir)
+		dataset = dvs.DVSGesture(root_dir)
 		time, pos, label = dataset[0] # __getitem__
 
 		self.assertTrue(isinstance(time,np.ndarray))
@@ -137,7 +140,7 @@ class TestDVSDataloader(unittest.TestCase):
 
 		seqs = [array1, array2, array3]
 		seq_lengths = np.asarray([len(arr) for arr in seqs])
-		seq_tensor = load.pad_sequences(seqs,seq_lengths)
+		seq_tensor = dvs.pad_sequences(seqs,seq_lengths)
 
 		_seq_tensor = torch.tensor([[[   1,    2,    3],
 												         [   5,    6,    7],
@@ -167,12 +170,12 @@ class TestDVSDataloader(unittest.TestCase):
 		'''
 		root_dir = '/home/ugurc/drive/data/DvsGesture'
 		batch = 4
-		dataset = load.DVSGesture(root_dir)
+		dataset = dvs.DVSGesture(root_dir)
 
 		test_loader = DataLoader(dataset=dataset,
 														 batch_size=batch,
 														 shuffle=True,
-														 collate_fn=load.collate_fn)
+														 collate_fn=dvs.collate_fn)
 
 		for epoch in range(1):
 			for i, (time, pos, labels) in enumerate(test_loader):
@@ -190,7 +193,7 @@ class TestDVSDataloader(unittest.TestCase):
 					 [3,4,0],
 					 [8,15,0],
 					 [15,15,1]]
-		frame = load.pos_to_frame(pos,2,'',(16,16))
+		frame = dvs.pos_to_frame(pos,2,'',(16,16))
 
 		# # UNCOMMENT to visually inspect
 		# cv2.imshow("Test", frame)
@@ -206,15 +209,15 @@ class TestDVSDataloader(unittest.TestCase):
 		Uncomment to see the resulting picture.
 		'''
 		root_dir = '/home/ugurc/drive/data/DvsGesture'
-		dataset = load.DVSGesture(root_dir)
+		dataset = dvs.DVSGesture(root_dir)
 
 		test_loader = DataLoader(dataset=dataset,
 														 batch_size=4,
 														 shuffle=True,
-														 collate_fn=load.collate_fn)
+														 collate_fn=dvs.collate_fn)
 
 		for i, (time, pos, labels) in enumerate(test_loader):
-			frame = load.pos_to_frame(pos[0],4,'right_arm_counter_clockwise')
+			frame = dvs.pos_to_frame(pos[0],4,'right_arm_counter_clockwise')
 			self.assertEqual(frame.shape, (512,512,3))
 
 			# # UNCOMMENT to visually inspect
@@ -241,7 +244,7 @@ class TestDVSDataloader(unittest.TestCase):
 		_idx = [(20, 276, 20, 276), (20, 276, 296, 552), (20, 276, 572, 828), (296, 552, 20, 276), (296, 552, 296, 552), (296, 552, 572, 828), (572, 828, 20, 276), (572, 828, 296, 552), (572, 828, 572, 828)]
 
 		for i in range(9):
-			idx.append(load.get_area_index(i,n_frame_width,scale,(px_frame_width,px_frame_height),px_margin))
+			idx.append(dvs.get_area_index(i,n_frame_width,scale,(px_frame_width,px_frame_height),px_margin))
 
 		self.assertEqual(idx,_idx)
 		print('Area index test passed!\n')
@@ -254,21 +257,21 @@ class TestDVSDataloader(unittest.TestCase):
 		Uncomment to see the resulting picture.
 		'''
 		root_dir = '/home/ugurc/drive/data/DvsGesture'
-		dataset = load.DVSGesture(root_dir)
+		dataset = dvs.DVSGesture(root_dir)
 		batch = 18
 		scale = 2
 
 		test_loader = DataLoader(dataset=dataset,
 														 batch_size=batch,
 														 shuffle=True,
-														 collate_fn=load.collate_fn)
+														 collate_fn=dvs.collate_fn)
 		pos_batch = []
 		for i, (time, pos, labels) in enumerate(test_loader):
 			for i in range(batch):
-				pos_batch.append(load.pos_to_frame(pos[i],scale,str(labels[i])))
+				pos_batch.append(dvs.pos_to_frame(pos[i],scale,str(labels[i])))
 			break
 
-		frame_batch=load.batch_frame(pos_batch,scale, (3,6))
+		frame_batch=dvs.batch_frame(pos_batch,scale, (3,6))
 		self.assertEqual(frame_batch.shape, (848, 1676, 3))
 		# # UNCOMMENT to visually inspect
 		# cv2.imshow("Test", frame_batch)
@@ -284,7 +287,7 @@ class TestDVSDataloader(unittest.TestCase):
 		'''
 		_time = [12, 15, 21, 23, 26, 27, 32]
 		incr = 10
-		idx = load.split_time(_time,incr)
+		idx = dvs.split_time(_time,incr)
 		_idx = [0,3,6]
 		# resultin array would become 
 		# [12, 23, 32]
@@ -302,18 +305,18 @@ class TestDVSDataloader(unittest.TestCase):
 		incr = int(1e6)//fps
 		scale = 2
 
-		dataset = load.DVSGesture(root_dir)
+		dataset = dvs.DVSGesture(root_dir)
 		gesture_mapping = dataset.gesture_mapping
 		test_loader = DataLoader(dataset=dataset,
 														 batch_size=batch,
 														 shuffle=True,
-														 collate_fn=load.collate_fn)
+														 collate_fn=dvs.collate_fn)
 
 
 		for i, (time, pos, labels) in enumerate(test_loader):
 			time_splitted = []
 			for i in range(batch):
-				time_splitted.append(load.split_time(time[i].numpy(),incr))
+				time_splitted.append(dvs.split_time(time[i].numpy(),incr))
 
 			# transpose
 			t0_list = list(zip(*time_splitted))
@@ -345,15 +348,14 @@ class TestDVSDataloader(unittest.TestCase):
 	# 	filename = 'test.avi'
 	# 	batch = 18
 
-	# 	dataset = load.DVSGesture(root_dir)
+	# 	dataset = dvs.DVSGesture(root_dir)
 	# 	test_loader = DataLoader(dataset=dataset,
 	# 													 batch_size=batch,
 	# 													 shuffle=True,
-	# 													 collate_fn=load.collate_fn)
+	# 													 collate_fn=dvs.collate_fn)
 
 
-	# 	load.loader_video(test_loader,filename,n_grid_shape=(3,6))
-
+	# 	dvs.loader_video(test_loader,filename,n_grid_shape=(3,6))
 
 if __name__=='__main__':
 	env.clear_env()
