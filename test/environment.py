@@ -141,6 +141,15 @@ def dvs_dataloader_env():
 def gesture_classifiers():
 	None
 
+def template():
+	None
+
+def transformation():
+	test_path = os.path.join(os.getcwd(), 'test_files')
+
+	if not os.path.exists(test_path):
+		os.makedirs(test_path)
+
 def aedat1():
 	'''
 	In the mock file there are 3 event records.
